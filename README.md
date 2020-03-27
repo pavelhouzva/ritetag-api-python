@@ -8,7 +8,7 @@ Python API client
 
 ## Installation
 
-`pip install ritetag-api`
+`pip install --user ritetag`
 
 
 ## Usage
