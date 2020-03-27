@@ -59,8 +59,6 @@ def get_domain(parser, args):
     if args.hashtags is None or len(args.hashtags) == 0:
         parser.error('missing domain')
     elif len(args.hashtags) > 1:
-        print(len(args.hashtags))
-        print(args.hashtags)
         parser.error('invalid domain')
     return args.hashtags[0]
 
@@ -92,7 +90,10 @@ def run():
 
     api = RiteTagApi(args.access_token if require_token else access_token)
 
-    api.on_limit(0, print)
+    def log(limit):
+        print(limit)
+
+    api.on_limit(0, log)
 
     a = Action[args.action]
 
@@ -104,27 +105,27 @@ def run():
 
         elif a == Action.auto_hashtags:
             post = get_post(parser, args)
-            print(api.auto_hashtag(post, args.max_hashtags))
+            log(api.auto_hashtag(post, args.max_hashtags))
 
         elif a == Action.hashtag_suggestions_for_text:
             post = get_post(parser, args)
-            [print(x) for x in api.hashtag_suggestion_for_text(post)]
+            [log(x) for x in api.hashtag_suggestion_for_text(post)]
 
         elif a == Action.hashtag_suggestions_for_image:
             post = get_url(parser, args)
-            [print(x) for x in api.hashtag_suggestion_for_image(post)]
+            [log(x) for x in api.hashtag_suggestion_for_image(post)]
 
         elif a == Action.hashtag_history:
             hashtag = get_hashtag(parser, args)
-            [print(x) for x in api.history(hashtag)]
+            [log(x) for x in api.history(hashtag)]
 
         elif a == Action.emojis_suggestion:
             text = get_post(parser, args)
-            print(', '.join(api.emoji_suggestion(text)))
+            log(', '.join(api.emoji_suggestion(text)))
 
         elif a == Action.auto_emojify:
             text = get_post(parser, args)
-            print(api.auto_emojify(text))
+            log(api.auto_emojify(text))
 
         elif a == Action.text_to_image:
             parser.error("not implemented yet")
@@ -137,15 +138,15 @@ def run():
             img = api.company_logo(domain)
             filename = domain.replace('.', '_') if args.filename is None else args.filename
             path = img.save(current_directory, filename)
-            print('Image saved. Location: {}'.format(path))
+            log('Image saved. Location: {}'.format(path))
 
         elif a == Action.list_of_cta:
-            [print(x) for x in api.list_of_cta()]
+            [log(x) for x in api.list_of_cta()]
 
         elif a == Action.shorten_link:
             url = get_domain(parser, args)
             cta_id = args.cta_id
-            print(api.shorten_url(url, cta_id).url)
+            log(api.shorten_url(url, cta_id).url)
     except RiteTagException as e:
         parser.error(e)
         # raise e

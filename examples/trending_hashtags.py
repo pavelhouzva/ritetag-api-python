@@ -8,4 +8,9 @@ client = RiteTagApi(access_token)
 
 result = client.trending_hashtags(True, True)
 
-[print(hashtag) for hashtag in result]
+
+def log(message):
+    print(message)
+
+
+[log(hashtag) for hashtag in result]

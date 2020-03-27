@@ -8,4 +8,8 @@ client = RiteTagApi(access_token)
 
 result = client.hashtag_suggestion_for_text('When you give Alaskans a universal basic income, they still keep working.')
 
-[print(hashtag) for hashtag in result]
+
+def log(message):
+    print(message)
+
+[log(hashtag) for hashtag in result]

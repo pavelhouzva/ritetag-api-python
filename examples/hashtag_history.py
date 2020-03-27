@@ -8,4 +8,8 @@ client = RiteTagApi(access_token)
 
 result = client.history('job')
 
-[print(hashtag) for hashtag in result]
+
+def log(message):
+    print(message)
+
+[log(hashtag) for hashtag in result]
