@@ -153,12 +153,11 @@ class RiteTagApi:
     def hashtag_suggestion_for_text(self, text):
         # type: (str) -> [Hashtag]
         """
-        Returns list of hashtag suggestions for a single-word topic
-        or for short block of text (up to 1000 characters).
+        Returns list of hashtag suggestions for a single-word topic or for short block of text (up to 1000 characters).
 
-         Parameters
-         ----------
-         text : str
+        Parameters
+        ----------
+        text : str
             Text up to 1000 characters for which hashtags should be suggested
          """
         response = self._get_request('/v1/stats/hashtag-suggestions', {'text': text})
@@ -273,9 +272,8 @@ class RiteTagApi:
         image_builder : ImageBuilder
             see ImageBuilder
         """
-        response = self._get_request('/v1/images/quote', params=image_builder.build())
-        url = Parser.url_from_image(response.json())
-        return self._get_image_from_url(url)
+        response = self._get_request('/v2/image/quote', params=image_builder.build(), stream=True)
+        return Parser.image(response)
 
     @api_call
     def animate_image(self, url, animation_type=AnimationType.glint):
@@ -295,7 +293,7 @@ class RiteTagApi:
 
     @api_call
     def company_logo(self, domain):
-        # type: (str) -> Image
+        # type: (str) -> str
         """
         Returns a company logo based on website domain.
         If the logo is not in our database yet, it will be extracted from the site on the fly.
@@ -310,9 +308,8 @@ class RiteTagApi:
             Hostname without http://
         """
         domain = self._sanitize_domain(domain)
-        response = self._get_request('/v1/images/logo', {'domain': domain}, stream=True)
-        # response.raw.decode_content = True
-        return Parser.image(response)
+        response = self._get_request('/v2/company-insights/logo', {'domain': domain})
+        return Parser.company_logo(response.json())
 
     @api_call
     def list_of_cta(self):
@@ -340,6 +337,36 @@ class RiteTagApi:
         url = self._sanitize_url(url)
         response = self._get_request('/v1/link/short-link', {'url': url, 'cta': cta_id})
         return Parser.link(response.json())
+
+
+    def free_mail_detection(self, domain):
+        domain = self._sanitize_domain(domain)
+        response = self._get_request('/v2/person-insights/freemail-detection', {'domain': domain})
+        return Parser.free_mail_detection(response.json())
+
+
+    def disposable_email_detection(self, email):
+        email = self._sanitize_domain(email)
+        response = self._get_request('/v2/person-insights/disposable-email-detection', {'email': email})
+        return Parser.disposable_email_detection(response.json())
+
+    def email_typo(self, email):
+        email = self._sanitize_domain(email)
+        response = self._get_request('/v2/person-insights/email-typo', {'email': email})
+        return Parser.email_typo(response.json())
+
+    def name_from_email_address(self, email):
+        email = self._sanitize_domain(email)
+        response = self._get_request('/v2/person-insights/name-from-email-address', {'email': email})
+        return Parser.name_from_email_address(response.json())
+
+    def company_name_to_domain(self, name):
+        response = self._get_request('/v2/company-insights/name-to-domain', {'name': name})
+        return response.json()['data']
+
+    def brand_colors(self, name):
+        response = self._get_request('/v2/company-insights/brand-colors', {'name': name})
+        return response.json()['data']
 
     def on_limit(self, percentage, callback):
         # type: (int, callable) -> None

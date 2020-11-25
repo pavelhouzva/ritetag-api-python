@@ -303,6 +303,31 @@ class Parser:
         Parser._handle_error_message(json)
         return json['url']
 
+    @staticmethod
+    def free_mail_detection(json):
+        # type: (dict) -> bool
+        return json['freemail']
+
+    @staticmethod
+    def disposable_email_detection(json):
+        # type: (dict) -> bool
+        return json['disposable']
+
+    @staticmethod
+    def email_typo(json):
+        # type: (dict) -> [str]
+        return json['suggestions']
+
+    @staticmethod
+    def company_logo(json):
+        # type: (dict) -> [str]
+        return json['url']
+
+    @staticmethod
+    def name_from_email_address(json):
+        # type: (dict) -> str
+        return json['info']
+
 
 class Limit:
 
