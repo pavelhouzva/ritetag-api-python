@@ -237,6 +237,37 @@ class Link:
         return '{} ({}) service: {}, cta: {}'.format(self.url, self.original, self.service, self.cta_id)
 
 
+class Logo:
+
+    def __init__(self, response):
+        self.response = response
+
+    @property
+    def is_found(self):
+        return self.response['result']
+
+    @property
+    def is_generated(self):
+        return self.response['isGenerated'] if self.is_found else False
+
+    def logo(self, permanent=False):
+        if self.is_found:
+            return self.__get_image('originalLogo', permanent)
+        raise RiteTagException('Logo not found')
+
+    def square_logo(self, permanent=False):
+        if self.is_found:
+            return self.__get_image('squareLogo', permanent)
+        raise RiteTagException('Logo not found')
+
+    def __get_image(self, type, permanent):
+        url_type = 'permanentUrl' if permanent else 'url'
+        l = self.response[type]
+        for content_type in ['svg', 'png', 'webp', 'jpg']:
+            if content_type in l[url_type]:
+                return l[url_type][content_type]
+
+
 class Parser:
     @staticmethod
     def _handle_error_message(json):
@@ -322,6 +353,11 @@ class Parser:
     def company_logo(json):
         # type: (dict) -> [str]
         return json['url']
+
+    @staticmethod
+    def company_logo_2(json):
+        # type: (dict) -> [str]
+        return Logo(json)
 
     @staticmethod
     def name_from_email_address(json):

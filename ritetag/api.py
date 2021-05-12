@@ -292,8 +292,32 @@ class RiteTagApi:
         return Parser.image(response)
 
     @api_call
-    def company_logo(self, domain):
-        # type: (str) -> str
+    def company_logo(self, domain, generateFallbackLogo=False):
+        # type: (str, bool) -> str
+        """
+        Deprecated
+
+        Returns a company logo based on website domain.
+        If the logo is not in our database yet, it will be extracted from the site on the fly.
+        White logo background is automatically removed to make the logo look better on color backgrounds.
+        Note: It is not possible to access our company logo API publicly without authentication.
+        If you wish to do so, you have to create a proxy on your own server that calls our API
+        from the server side.
+
+        Parameters
+        ----------
+        domain : str
+            Hostname without http://
+        generateFallbackLogo : bool
+        """
+        domain = self._sanitize_domain(domain)
+        gen = 1 if generateFallbackLogo else 0
+        response = self._get_request('/v2/company-insights/logo', {'domain': domain, 'generateFallbackLogo': gen})
+        return Parser.company_logo(response.json())
+
+    @api_call
+    def company_logo_2(self, domain, generateFallbackLogo=False):
+        # type: (str, bool) -> Logo
         """
         Returns a company logo based on website domain.
         If the logo is not in our database yet, it will be extracted from the site on the fly.
@@ -306,10 +330,12 @@ class RiteTagApi:
         ----------
         domain : str
             Hostname without http://
+        generateFallbackLogo : bool
         """
         domain = self._sanitize_domain(domain)
-        response = self._get_request('/v2/company-insights/logo', {'domain': domain})
-        return Parser.company_logo(response.json())
+        gen = 1 if generateFallbackLogo else 0
+        response = self._get_request('/v2/company-insights/logo', {'domain': domain, 'generateFallbackLogo': gen})
+        return Parser.company_logo_2(response.json())
 
     @api_call
     def list_of_cta(self):
