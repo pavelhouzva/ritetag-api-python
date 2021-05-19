@@ -143,7 +143,7 @@ Image is saved notfound.test - notfound_test_square.png
 
 ```shell
 # Company logo example
-ritetag-api -t {token} company_logo -g 1 company_logo notfound.test
+ritetag-api -t {token} company_logo -g 0 company_logo notfound.test
 ```
 
 ```
