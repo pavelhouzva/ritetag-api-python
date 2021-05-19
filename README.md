@@ -102,3 +102,55 @@ color: HOT_NOW
 media count: 18896544
 
 ```
+### Company logo API (console)
+
+##### Example 1 - google.com
+
+```shell
+# Company logo example
+ritetag-api -t {token} company_logo google.com
+```
+
+```
+Looking for logo - google.com
+Used 0.14% of API credits. The limit resets on 2021-06-01.
+Downloading logo - google.com
+Image is saved google_com.svg - google.com
+Downloading square logo - google.com
+Image is saved google.com - google_com_square.png
+
+```
+
+##### Example 2 - notfound.test with Generate fallback
+
+```shell
+# Company logo example
+ritetag-api -t {token} company_logo -g 1 company_logo notfound.test
+```
+
+```
+Looking for logo - notfound.test
+Used 0.14% of API credits. The limit resets on 2021-06-01.
+Logo is generated.
+Downloading logo - notfound.test
+Image is saved notfound_test.png - notfound.test
+Downloading square logo - notfound.test
+Image is saved notfound.test - notfound_test_square.png
+
+```
+
+##### Example 3 -  notfound.test without Generate fallback
+
+```shell
+# Company logo example
+ritetag-api -t {token} company_logo -g 1 company_logo notfound.test
+```
+
+```
+Looking for logo - notfound.test
+Used 0.14% of API credits. The limit resets on 2021-06-01.
+Downloading logo - notfound.test
+Error Logo not found - notfound.test
+Downloading square logo - notfound.test
+Error Logo not found - notfound.test
+```

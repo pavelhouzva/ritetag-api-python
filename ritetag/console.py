@@ -86,6 +86,7 @@ def run():
     parser.add_argument('-p', '--hashtag_position', type=str, choices=['auto', 'end'], default='auto')
     parser.add_argument('-f', '--filename', type=str)
     parser.add_argument('-ci', '--cta_id', type=int)
+    parser.add_argument('-g', '--auto_generate', type=str, choices=['1', '0'], default='1')
     args = parser.parse_args()
 
     api = RiteTagApi(args.access_token if require_token else access_token)
@@ -135,10 +136,28 @@ def run():
 
         elif a == Action.company_logo:
             domain = get_domain(parser, args)
-            img = api.company_logo(domain)
+            log('Looking for logo - {}'.format(domain))
+            logo = api.company_logo_2(domain, True if args.auto_generate == '1' else False)
             filename = domain.replace('.', '_') if args.filename is None else args.filename
-            path = img.save(current_directory, filename)
-            log('Image saved. Location: {}'.format(path))
+
+            if logo.is_generated:
+                log("Logo is generated.")
+
+            log("Downloading logo - {}".format(domain))
+            try:
+                original_path = '{}.{}'.format(filename, logo.logo_content_type())
+                Parser.download_file(logo.logo(), original_path)
+                log('Image is saved {} - {}'.format(original_path, domain))
+            except RiteTagException as e:
+                log('Error {} - {}'.format(e, domain))
+
+            log("Downloading square logo - {}".format(domain))
+            try:
+                square_path = '{}_square.{}'.format(filename, logo.square_logo_content_type())
+                Parser.download_file(logo.square_logo(), square_path)
+                log('Image is saved {} - {}'.format(domain, square_path))
+            except RiteTagException as e:
+                log('Error {} - {}'.format(e, domain))
 
         elif a == Action.list_of_cta:
             [log(x) for x in api.list_of_cta()]

@@ -1,6 +1,6 @@
 from datetime import date
 
-from requests import Response
+from requests import Response, get
 
 from .exceptions import *
 import shutil
@@ -237,6 +237,19 @@ class Link:
         return '{} ({}) service: {}, cta: {}'.format(self.url, self.original, self.service, self.cta_id)
 
 
+class ArticleForUrl:
+
+    def __init__(self, url, title, text):
+        # type: (str, str, str) -> ArticleForUrl
+        self.url = url
+        self.title = title
+        self.text = text
+
+    def __str__(self):
+        # type: () -> str
+        return '{} - title: {}\ntext: {}'.format(self.url, self.title, self.text)
+
+
 class Logo:
 
     def __init__(self, response):
@@ -255,9 +268,19 @@ class Logo:
             return self.__get_image('originalLogo', permanent)
         raise RiteTagException('Logo not found')
 
+    def logo_content_type(self, permanent=False):
+        if self.is_found:
+            return self.__get_image_content_type('originalLogo', permanent)
+        raise RiteTagException('Logo not found')
+
     def square_logo(self, permanent=False):
         if self.is_found:
             return self.__get_image('squareLogo', permanent)
+        raise RiteTagException('Logo not found')
+
+    def square_logo_content_type(self, permanent=False):
+        if self.is_found:
+            return self.__get_image_content_type('squareLogo', permanent)
         raise RiteTagException('Logo not found')
 
     def __get_image(self, type, permanent):
@@ -267,6 +290,13 @@ class Logo:
             if content_type in l[url_type]:
                 return l[url_type][content_type]
 
+    def __get_image_content_type(self, type, permanent):
+        url_type = 'permanentUrl' if permanent else 'url'
+        l = self.response[type]
+        for content_type in ['svg', 'png', 'webp', 'jpg']:
+            if content_type in l[url_type]:
+                return content_type
+
 
 class Parser:
     @staticmethod
@@ -274,6 +304,13 @@ class Parser:
         # type: (dict) -> None
         if not json['result']:
             raise RiteTagException(json['message'])
+
+    @staticmethod
+    def download_file(url, filename):
+        r = get(url, allow_redirects=True)
+        f = open(filename, "wb")
+        f.write(r.content)
+        f.close()
 
     @staticmethod
     def hashtag_list(json, key):
@@ -363,6 +400,11 @@ class Parser:
     def name_from_email_address(json):
         # type: (dict) -> str
         return json['info']
+
+    @staticmethod
+    def article_for_url(json):
+        # type: (dict) -> ArticleForUrl
+        return ArticleForUrl(json['url'], json['title'], json['text'])
 
 
 class Limit:

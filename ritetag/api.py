@@ -17,6 +17,7 @@ except:
 class RiteTagApi:
 
     def __init__(self, client_id):
+        # type: (str) -> RiteTagApi
         self.base_uri = 'https://api.ritekit.com'
         self.client_id = client_id
         self.limit = None
@@ -364,35 +365,155 @@ class RiteTagApi:
         response = self._get_request('/v1/link/short-link', {'url': url, 'cta': cta_id})
         return Parser.link(response.json())
 
-
     def free_mail_detection(self, domain):
+        # type: (str) -> bool
+        """
+        Returns true for a recognized free email address or domain.
+
+        Filter out free personal emails (gmail.com, outlook.com) with freemail detection API; forward hot business
+        leads to your sales team. Give special treatment only to those who register with business email addresses.
+        Use this endpoint before calling Brand Colors and Company Logo so you spend credits on calls only for
+        real leads.
+
+        Parameters
+        ----------
+        domain : str
+            domain or email address
+        """
         domain = self._sanitize_domain(domain)
         response = self._get_request('/v2/person-insights/freemail-detection', {'domain': domain})
         return Parser.free_mail_detection(response.json())
 
-
     def disposable_email_detection(self, email):
+        # type: (str) -> bool
+        """
+        Returns true for a recognized disposable email address
+
+        Tired of free riders signing up with fake email addresses and using your app's free trial repeatedly?
+        Stop wasting money for API calls, emails and other costs incurred by users who will never pay for anything.
+        Prevent them from signing up with our Disposable Email Detection API.
+
+        Parameters
+        ----------
+        email : str
+            domain or email address
+        """
         email = self._sanitize_domain(email)
         response = self._get_request('/v2/person-insights/disposable-email-detection', {'email': email})
         return Parser.disposable_email_detection(response.json())
 
     def email_typo(self, email):
+        # type: (str) -> [str]
+        """
+        Returns an array of most likely corrected email domains.
+
+        Users who make a typo in their email address never get your onboarding emails, cannot reset their password and
+        cannot be even reached by your customer support. They are practically lost. With our Email Typo API you can
+        check for typical mistakes in email addresses and show "Did you mean" suggestions right in your sign up form.
+
+        Parameters
+        ----------
+        email : str
+            domain or email address
+        """
         email = self._sanitize_domain(email)
         response = self._get_request('/v2/person-insights/email-typo', {'email': email})
         return Parser.email_typo(response.json())
 
     def name_from_email_address(self, email):
+        # type: (str) -> str
+        """
+        Returns name and surname derived from an email address.
+
+        The less fields in a sign up form, the higher the completion rate. Asking for a real name of a user is seen as
+        a nuisance serving no value for the user himself. However, using customer name in the UI or in the emails
+        significantly improves conversion rates, open rates and even deliverability as it is an indication for spam
+        filters that the email is probably personal. With Name from Email Address API, you can derive real names from
+        email addresses without actually bothering users with filling unnecessary fields.
+
+        Parameters
+        ----------
+        email : str
+            domain or email address
+        """
         email = self._sanitize_domain(email)
         response = self._get_request('/v2/person-insights/name-from-email-address', {'email': email})
         return Parser.name_from_email_address(response.json())
 
     def company_name_to_domain(self, name):
+        # type: (str) -> [str]
+        """
+        Returns an array of most probable domains for a given company name.
+
+        Use this API call to retrieve company domain that can be used in other RiteKit API calls, eg. Company Logo.
+
+        Parameters
+        ----------
+        name : str
+            company name
+        """
         response = self._get_request('/v2/company-insights/name-to-domain', {'name': name})
         return response.json()['data']
 
-    def brand_colors(self, name):
-        response = self._get_request('/v2/company-insights/brand-colors', {'name': name})
+    def brand_colors(self, domain):
+        # type: (str) -> [str]
+        """
+        Returns array of brand colors for a given domain.
+
+        Parameters
+        ----------
+        domain : str
+            company name
+        """
+        domain = self._sanitize_domain(domain)
+        response = self._get_request('/v2/company-insights/brand-colors', {'name': domain})
         return response.json()['data']
+
+    def extract_hastags_for_url(self, url):
+        # type: (str) -> [Hashtag]
+        """
+        Returns list of hashtag suggestions for any URL. Takes into account both semantic relevancy and
+        real-time hashtag popularity.
+
+        Parameters
+        ----------
+        url : str
+            url
+        """
+        url = self._sanitize_url(url)
+        response = self._get_request('/v2/stats/hashtags-for-url', {'url': url})
+        return Parser.hashtag_list(response.json(), 'hashtags')
+
+    def extract_article_for_url(self, url):
+        # type: (str) -> ArticleForUrl
+        """
+        Returns a title and a text of an article extracted from a URL (ignoring text in headers, footers, columns etc.).
+        Works in Arabic, Russian, Dutch, German, English, Spanish, French, Hebrew, Italian, Korean, Norwegian, Persian,
+        Polish, Portuguese, Swedish, Hungarian, Finnish, Danish, Chinese, Indonesian, Vietnamese, Swahili, Turkish,
+        Greek, Ukrainian.
+
+        Parameters
+        ----------
+        url : str
+            url
+        """
+        url = self._sanitize_url(url)
+        response = self._get_request('/v2/text/extract-article', {'url': url})
+        return Parser.article_for_url(response.json())
+
+    def extract_top_image_for_url(self, url):
+        # type: (str) -> str
+        """
+        Returns an image URL extracted from a page URL
+
+        Parameters
+        ----------
+        url : str
+            url
+        """
+        url = self._sanitize_url(url)
+        response = self._get_request('/v2/image/extract-image', {'url': url})
+        return response.json()['top_image']
 
     def on_limit(self, percentage, callback):
         # type: (int, callable) -> None
