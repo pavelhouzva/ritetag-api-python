@@ -19,4 +19,5 @@ for domain in domains:
         print('Original URL (permanent): {}'.format(result.square_logo(True)))
         print('Square URL: {}'.format(result.logo()))
         print('Square URL (permanent): {}'.format(result.square_logo(True)))
+        print('Brand colors: {}'.format(', '.join(result.brand_colors)))
         print('')

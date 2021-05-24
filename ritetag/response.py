@@ -268,6 +268,10 @@ class Logo:
             return self.__get_image('originalLogo', permanent)
         raise RiteTagException('Logo not found')
 
+    @property
+    def brand_colors(self):
+        return self.response['brandColors']
+
     def logo_content_type(self, permanent=False):
         if self.is_found:
             return self.__get_image_content_type('originalLogo', permanent)
